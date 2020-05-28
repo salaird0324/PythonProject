@@ -1,0 +1,124 @@
+#import mysql connector and pygal
+import mysql.connector
+import pygal
+
+#connect to your datbase
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="spencer",
+  passwd="324S@l1998",
+  database="classicmodels"
+)
+
+#The cursor will execute  queries on your MySql Datbase
+mycursor = mydb.cursor()
+
+#Create sql query. The backslash \  is a line continuation character and will allow the query to execute as one string
+sql_query = '''SELECT e.firstName, e.lastName, COUNT(c.salesRepEmployeeNumber) AS "NumCustomers"
+ FROM employees e, customers c
+ WHERE e.employeeNumber = c.salesRepEmployeeNumber
+ GROUP BY c.salesRepEmployeeNumber
+ ORDER BY COUNT(c.salesRepEmployeeNumber) DESC;'''
+
+#Execute the query
+mycursor.execute(sql_query)
+
+#Get the query result                                                                                                                                                                                              query_result = mycursor.fetchall()                                                                                                                                                                                                                                                                                                                                                                                                    #Store results in lists
+#Each record will be returned in the form of a tuple so we will need to access each tuple item
+employee_names = []
+number_of_customers = []
+
+for record in query_result:
+    employee_names.append(record[0] + " " + record[1]) #The first 2 items in the tuple are first and last names
+    number_of_customers.append(record[2]) #the third item is the number of customers
+
+#Export the data in a chart to an SVG file
+bar_chart = pygal.Bar(x_label_rotation=45)
+bar_chart.title = "Customers per Employee"
+bar_chart.x_labels = map(str, employee_names) #set x axis labels to the employee names
+bar_chart.add('Number of Customers', number_of_customers) # add number of customers
+bar_chart.render_to_file('images/mod13_q1.svg') #render the chart to an SVG file
+
+#If program is successful print this
+print("Program executed successfully")
+
+### Write your queries and create your charts below
+
+### 2
+
+sql_query2 = ''' select p.productName, COUNT(o.orderNumber) FROM products p, orderdetails o WHERE p.productCode = o.productCode GROUP BY o.productCode ORDER BY COUNT(o.orderNumber) DESC LIMIT 10;'''
+
+mycursor.execute(sql_query2)
+
+query_result = mycursor.fetchall()
+
+product_names = []
+num_of_orders = []
+
+for record in query_result:
+    product_names.append(record[0])
+    num_of_orders.append(record[1])
+
+bar_chart2 = pygal.Bar(x_label_rotation=45)
+bar_chart2.title = "2"
+bar_chart2.x_labels = map(str, product_names)
+bar_chart2.add('Number of Orders', num_of_orders)
+bar_chart2.render_to_file("images/sql_query2.svg")
+
+print("Query 2 finished successfully")
+sql_query3 = '''select p.productName, o.priceEach FROM products p, orderdetails o WHERE p.productCode = o.productCode GROUP BY p.productName, o.priceEach ORDER BY o.priceEach DESC LIMIT 10;'''
+
+mycursor.execute(sql_query3)
+
+query_result = mycursor.fetchall()
+
+product_names = []
+highest_prices = []
+
+for record in query_result:
+    product_names.append(record[0])
+    highest_prices.append(record[1])
+
+bar_chart3 = pygal.Bar(x_label_rotation=45)
+bar_chart3.title = "3"
+bar_chart3.x_labels = map(str, product_names)
+bar_chart3.add("Price per Order", highest_prices)
+bar_chart3.render_to_file("images/sql_query3.svg")
+
+print("Query 3 finished successfully")
+
+
+### 4
+sql_query4 = '''select orderNumber, priceEach from orderdetails GROUP BY orderNumber, priceEach ORDER BY priceEach DESC LIMIT 10;'''
+mycursor.execute(sql_query4)
+
+query_result4 = mycursor.fetchall()
+
+order_numbers = []
+price_each = []
+
+for record in query_result4:
+    order_numbers.append(record[0])
+    price_each.append(record[1])
+
+bar_chart4 = pygal.Bar(x_label_rotation = 45)
+bar_chart4.title = "4"
+bar_chart4.x_labels = map(str, order_numbers)
+bar_chart4.add("Price per Order", price_each)
+bar_chart4.render_to_file("images/sql_query4.svg")
+print("Query 4 fini                                                                                                                                                                 sql_query5 = '''select c.customerName, COUNT(o.orderNumber) FROM customers c, orders o WHERE c.customerNumber = o.customerNumber GROUP BY c.customerName ORDER BY COUNT(o.orderNumber) DESC LIMIT 10;'''                                                                                                                                                                                                                              mycursor.execute(sql_query5)
+
+query_result = mycursor.fetchall()
+
+customer_names = []
+total_orders = []
+
+for record in query_result:
+    customer_names.append(record[0])
+    total_orders.append(record[1])
+
+bar_chart5 = pygal.HorizontalBar()
+bar_chart5.title = "5"
+bar_chart5.x_labels = map(str, customer_names)
+bar_chart5.add("total Orders", total_orders)
+bar_chart5.render_to_file("images/sql_query5.svg")
